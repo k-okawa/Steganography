@@ -2,8 +2,7 @@
 // Created by kyohei.okawa on 2021/07/05.
 //
 
-#include <fstream>
-#include <iostream>
+
 #include <string>
 #include <vector>
 #include "./JpgStegano.h"
