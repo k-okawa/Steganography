@@ -9,8 +9,8 @@
 
 class JpgStegano : BaseSteganography {
 public:
-    void Insert(std::string imagePath, std::string str);
-    std::vector<char> Load(std::string imagePath);
+    void insert(std::string imagePath, std::string str);
+    std::vector<char> load(std::string imagePath);
 };
 
 #endif //STEGANOGRAPHY_JPGSTEGANO_H

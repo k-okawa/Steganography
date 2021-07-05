@@ -14,13 +14,13 @@ int main(int argc, char *argv[]) {
     auto args = parser.parseArgs(argc, argv);
 
     if(args.get<std::string>("insert") != "") {
-        std::cout << "Start Insert------------------------------" << std::endl;
+        std::cout << "Start insert------------------------------" << std::endl;
         std::string imgPath = args.get<std::string>("img");
         std::string outPath = args.get<std::string>("out");
         std::filesystem::copy(imgPath, outPath, std::filesystem::copy_options::overwrite_existing);
         JpgStegano stegano;
-        stegano.Insert(outPath, args.get<std::string>("insert"));
-        std::cout << "End   Insert------------------------------" << std::endl;
+        stegano.insert(outPath, args.get<std::string>("insert"));
+        std::cout << "End   insert------------------------------" << std::endl;
     }
 
     return 0;

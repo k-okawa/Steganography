@@ -9,14 +9,14 @@
 #include "./JpgStegano.h"
 #include "../utils/fileutil.h"
 
-void JpgStegano::Insert(std::string imagePath, std::string str) {
-    std::vector<char> data = FileUtil::Read(imagePath);
-    std::vector<char> insert = Str2Byte(str);
+void JpgStegano::insert(std::string imagePath, std::string str) {
+    std::vector<char> data = FileUtil::read(imagePath);
+    std::vector<char> insert = str2Byte(str);
 
-    FileUtil::Write(data, imagePath);
+    FileUtil::write(data, imagePath);
 }
 
-std::vector<char> JpgStegano::Load(std::string imagePath) {
+std::vector<char> JpgStegano::load(std::string imagePath) {
     std::vector<char> ret;
     return ret;
 }

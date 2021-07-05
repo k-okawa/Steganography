@@ -11,7 +11,7 @@
 
 namespace FileUtil {
 
-    std::vector<char> Read(std::string path) {
+    std::vector<char> read(std::string path) {
         std::ifstream ifs(path, std::ios::binary);
         if (ifs.fail()) {
             std::cerr << "Failed to open file" << std::endl;
@@ -35,7 +35,7 @@ namespace FileUtil {
         return ret;
     }
 
-    void Write(std::vector<char> data, std::string path) {
+    void write(std::vector<char> data, std::string path) {
         std::ofstream fout(path, std::ios::out | std::ios::binary | std::ios::trunc);
 
         if (fout.fail()) {
