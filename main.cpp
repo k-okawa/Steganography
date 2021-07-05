@@ -1,7 +1,7 @@
 #include <iostream>
 #include <filesystem>
 #include "src/utils/argparse.h"
-#include "./src/steganography/ISteganography.h"
+#include "./src/steganography/BaseSteganography.h"
 #include "./src/steganography/JpgStegano.h"
 
 int main(int argc, char *argv[]) {

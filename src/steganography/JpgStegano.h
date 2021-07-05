@@ -5,9 +5,9 @@
 #ifndef STEGANOGRAPHY_JPGSTEGANO_H
 #define STEGANOGRAPHY_JPGSTEGANO_H
 
-#include "./ISteganography.h"
+#include "./BaseSteganography.h"
 
-class JpgStegano : ISteganography {
+class JpgStegano : BaseSteganography {
 public:
     void Insert(std::string imagePath, std::string str);
     std::vector<char> Load(std::string imagePath);
