@@ -18,16 +18,13 @@ void JpgStegano::insert(std::string imagePath, std::string str) {
 
     // 画像データの開始地点を検索
     int sosIndex = getSosIndex(data);
+    int imgIndex = sosIndex + 0xc + 1;
 
-    ShortBuffer ls;
-    ls.cr[0] = data[sosIndex + 2];
-    ls.cr[1] = data[sosIndex + 3];
-
-    int elSize = ls.st - 6;
+    int elSize = data.size() - imgIndex - 2;
 
     // ステガノ対象になるバイトを抽出
     std::vector<char*> targetVec;
-    for(int i = sosIndex + 6; i < sosIndex + 6 + elSize; i+=2) {
+    for(int i = imgIndex; i < imgIndex + elSize; i++) {
         targetVec.push_back(&data[i]);
     }
 
