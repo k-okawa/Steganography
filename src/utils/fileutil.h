@@ -11,11 +11,11 @@
 
 namespace FileUtil {
 
-    std::vector<std::byte> Read(std::string path) {
+    std::vector<char> Read(std::string path) {
         std::ifstream ifs(path, std::ios::binary);
         if (ifs.fail()) {
             std::cerr << "Failed to open file" << std::endl;
-            return std::vector<std::byte>();
+            return std::vector<char>();
         }
 
 
@@ -25,9 +25,9 @@ namespace FileUtil {
 
         char *data = new char[size];
         ifs.read(data, size);
-        std::vector<std::byte> ret;
-        for (int i = 0; i < size; i++) {
-            ret.push_back((std::byte) data[i]);
+        std::vector<char> ret;
+        for(int i = 0; i < size; i++) {
+            ret.push_back(data[i]);
         }
         delete[] data;
 
@@ -35,7 +35,7 @@ namespace FileUtil {
         return ret;
     }
 
-    void Write(std::vector<std::byte> data, std::string path) {
+    void Write(std::vector<char> data, std::string path) {
         std::ofstream fout(path, std::ios::out | std::ios::binary | std::ios::trunc);
 
         if (fout.fail()) {
@@ -44,7 +44,7 @@ namespace FileUtil {
         }
 
         for(int i = 0; i < data.size(); i++) {
-            fout.write((char *)&data[i], sizeof(std::byte));
+            fout.write((char *)&data[i], sizeof(char));
         }
 
         fout.close();
