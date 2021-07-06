@@ -2,7 +2,7 @@
 #include <filesystem>
 #include "src/utils/argparse.h"
 #include "./src/steganography/BaseSteganography.h"
-#include "./src/steganography/JpgStegano.h"
+#include "./src/steganography/PngStegano.h"
 
 int main(int argc, char *argv[]) {
     argparse::ArgumentParser parser("Steganography");
@@ -18,9 +18,14 @@ int main(int argc, char *argv[]) {
         std::string imgPath = args.get<std::string>("img");
         std::string outPath = args.get<std::string>("out");
         std::filesystem::copy(imgPath, outPath, std::filesystem::copy_options::overwrite_existing);
-        JpgStegano stegano;
+        PngStegano stegano;
         stegano.insert(outPath, args.get<std::string>("insert"));
         std::cout << "End   insert------------------------------" << std::endl;
+
+        std::cout << "Start load------------------------------" << std::endl;
+        std::vector<char> result = stegano.load(outPath);
+        std::cout << std::string(result.begin(), result.end()) << std::endl;
+        std::cout << "End       ------------------------------" << std::endl;
     }
 
     return 0;
