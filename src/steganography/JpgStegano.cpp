@@ -7,7 +7,6 @@
 #include <vector>
 #include "./JpgStegano.h"
 #include "../utils/fileutil.h"
-#include "../utils/byteutil.h"
 
 void JpgStegano::insert(std::string imagePath, std::string str) {
     std::vector<char> data = FileUtil::read(imagePath);
