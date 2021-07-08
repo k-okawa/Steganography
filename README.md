@@ -21,3 +21,7 @@ CmakeListに以下を記述すれば読み込める
 find_package(OpenCV REQUIRED)
 target_link_libraries(Steganography ${OpenCV_LIBS})
 ```
+
+## Lua
+### C++でのLuaの扱い参考
+https://qiita.com/hiz_/items/8739c46ddd2563a5603f

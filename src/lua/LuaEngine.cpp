@@ -28,5 +28,17 @@ LuaEngine* LuaEngine::getInstance() {
 void LuaEngine::init() {
     _luaState = luaL_newstate();
     luaL_openlibs(_luaState);
-    luaL_dostring(_luaState, "print('hello, lua!')");
+}
+
+void LuaEngine::execString(std::string str) {
+    luaL_dostring(_luaState, str.c_str());
+}
+
+void LuaEngine::execFile(std::string path) {
+    luaL_dofile(_luaState, path.c_str());
+}
+
+void LuaEngine::execFunc(std::string funcName) {
+    lua_getglobal(_luaState, funcName.c_str());
+    lua_pcall(_luaState, 0, 0, 0);
 }
