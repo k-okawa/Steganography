@@ -3,6 +3,7 @@
 #include "src/utils/argparse.h"
 #include "./src/steganography/BaseSteganography.h"
 #include "./src/steganography/PngStegano.h"
+#include "./src/lua/LuaEngine.h"
 
 int main(int argc, char *argv[]) {
     argparse::ArgumentParser parser("Steganography");
@@ -27,6 +28,8 @@ int main(int argc, char *argv[]) {
         std::cout << std::string(result.begin(), result.end()) << std::endl;
         std::cout << "End       ------------------------------" << std::endl;
     }
+
+    LuaEngine::getInstance();
 
     return 0;
 }
