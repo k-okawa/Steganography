@@ -10,9 +10,13 @@ list( REMOVE_ITEM lua_sources
         ${lua_path}/src/lua.c
         ${lua_path}/src/luac.c
         )
-
 include_directories(${lua_path}/src)
-add_executable(Steganography main.cpp src/utils/argparse.h src/steganography/BaseSteganography.h src/steganography/JpgStegano.h src/steganography/JpgStegano.cpp src/utils/fileutil.h src/steganography/BaseSteganography.cpp src/utils/fileutil.cpp src/steganography/PngStegano.cpp src/steganography/PngStegano.h src/lua/LuaEngine.cpp src/lua/LuaEngine.h ${lua_sources})
+
+ # src
+file( GLOB_RECURSE src ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/src)
+
+add_executable(Steganography main.cpp ${src} ${lua_sources})
 
 # OpenCv　参考 https://blog.yucchiy.com/2014/09/16/clion-opencv/
 find_package(OpenCV REQUIRED)
