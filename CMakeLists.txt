@@ -12,11 +12,14 @@ list( REMOVE_ITEM lua_sources
         )
 include_directories(${lua_path}/src)
 
+# parser
+file ( GLOB_RECURSE parser parser/*.c parser/*.h)
+
  # src
 file( GLOB_RECURSE src ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/src)
 
-add_executable(Steganography main.cpp ${src} ${lua_sources})
+add_executable(Steganography ${parser} ${lua_sources} ${src} main.cpp)
 
 # OpenCv　参考 https://blog.yucchiy.com/2014/09/16/clion-opencv/
 find_package(OpenCV REQUIRED)

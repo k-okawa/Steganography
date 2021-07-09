@@ -1,4 +1,3 @@
-# 環境構築
 ## OpenCV
 cmakeがインストールされていない場合はインストール
 ```shell
@@ -25,3 +24,19 @@ target_link_libraries(Steganography ${OpenCV_LIBS})
 ## Lua
 ### C++でのLuaの扱い参考
 https://qiita.com/hiz_/items/8739c46ddd2563a5603f
+
+## Flex, Bison
+### インストール
+```shell
+brew install flex bison
+```
+
+### flexビルド
+```shell
+flex -l parser.l
+```
+
+### bisonビルド
+```shell
+bison -dy parser.y
+```
