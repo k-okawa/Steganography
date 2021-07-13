@@ -13,7 +13,8 @@ list( REMOVE_ITEM lua_sources
 include_directories(${lua_path}/src)
 
 # parser
-file ( GLOB_RECURSE parser parser/*.c parser/*.h)
+file ( GLOB_RECURSE parser parser/stackmachine/*.cpp parser/stackmachine/*.h parser/PlnLexer.h parser/lex.yy.c parser/parser.tab.hh parser/parser.tab.cc)
+include_directories(parser)
 
  # src
 file( GLOB_RECURSE src ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp)

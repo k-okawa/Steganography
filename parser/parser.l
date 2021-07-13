@@ -1,26 +1,45 @@
 %{
 #include <stdio.h>
-#include "y.tab.h"
+#include "parser.tab.hh"
 
 extern int yywrap( void ){ return 1 ; }
 %}
+
+%s COMMENT
+%s LINE_COMMENT
 %%
-"+"     return ADD;
-"-"     return SUB;
-"*"     return MUL;
-"/"     return DIV;
-"\n"    return CR;
-[1-9][0-9]* {
-    double temp;
-    sscanf(yytext, "%lf", &temp);
-    yylval.double_value = temp;
-    return DOUBLE_LITERAL;
+<INITIAL>{
+    "("     return LP;
+    ")"     return RP;
+    "{"     return LC;
+    "}"     return RC;
+    ";"     return SEMICOLON;
+    "dump"     return DMP;
+    "int"       return INT_TYPE;
+    "/*"    { BEGIN(COMMENT);}
+    [/][/]+ { BEGIN(LINE_COMMENT);}
+    [1-9][0-9]* {
+        return INT_LITERAL;
+    }
+    [A-Za-z_][A-Za-z_0-9]* {
+        return IDENTIFIER;
+    }
+    "\n"    {gLine++;}
+    [ \t]   ;
+    .   { return 0;}
 }
-[0-9]*\.[0-9]* {
-    double temp;
-    sscanf(yytext, "%lf", &temp);
-    yylval.double_value = temp;
-    return DOUBLE_LITERAL;
+<COMMENT>{
+    "\n"    {gLine++;}
+    "*/" {BEGIN(INITIAL);}
+    .   ;
 }
-[ \t] ;
+<LINE_COMMENT>{
+    "\n" { gLine++; BEGIN(INITIAL);}
+    .   ;
+}
 %%
+
+int yylex(PlnParser::semantic_type* yylval, PlnParser::location_type* location, PlnLexer& lexer)
+{
+	return lexer.yylex(*yylval, *location);
+}

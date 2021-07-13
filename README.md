@@ -31,12 +31,18 @@ https://qiita.com/hiz_/items/8739c46ddd2563a5603f
 brew install flex bison
 ```
 
+homebrewでインストールしたbison,flexのバージョンに変更する
+```shell
+brew link flex --force
+brew link bison --force
+```
+
 ### flexビルド
 ```shell
-flex -l parser.l
+flex -+ parser.l
 ```
 
 ### bisonビルド
 ```shell
-bison -dy parser.y
+bison -d parser.y
 ```

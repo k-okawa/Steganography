@@ -6,9 +6,6 @@
 #include "./src/lua/LuaEngine.h"
 #include "./src/utils/fileutil.h"
 
-extern "C" int yyparse(void);
-extern "C" FILE *yyin;
-
 int main(int argc, char *argv[]) {
     argparse::ArgumentParser parser("Steganography");
     parser.addArgument({"--test"}, "Test case");
@@ -48,10 +45,6 @@ int main(int argc, char *argv[]) {
         luaEngine->execString(luaScriptStr);
         luaEngine->execFunc("main");
     }
-
-    char str[] = "1+1\n";
-    yyin = fmemopen(str, strlen(str), "r");
-    yyparse();
 
     return 0;
 }
