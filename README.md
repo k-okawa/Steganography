@@ -46,3 +46,6 @@ flex -+ parser.l
 ```shell
 bison -d parser.y
 ```
+
+C++はこちらを参考にしてみる
+https://github.com/tosyama/palan/tree/master/src/ast
