@@ -38,13 +38,21 @@ brew link bison --force
 ```
 
 ### flexビルド
+flex 2.6.4
 ```shell
-flex -+ parser.l
+flex -o PlnLexer.cpp lexer.l
 ```
 
+ビルドした後、PlnLexer.cppのincludeを変える
+
+304行目
+
+#include <FlexLexer.h> → #include "PlnLexer.h"
+
 ### bisonビルド
+bison (GNU Bison) 3.7.6
 ```shell
-bison -d parser.y
+bison -o PlnParser.cpp -r all --report-file=bison.log parser.y
 ```
 
 C++はこちらを参考にしてみる

@@ -1,22 +1,36 @@
-%{
-#include "stackmachine/proc.h"
-#define YYDEBUG 1
-extern char *yytext;
-int yyerror(char const *str){
-    extern int gLine;
-    fprintf(stderr,"%s, line: %d, near %s\n",str, gLine, yytext);
-    return 0;
-}
-%}
+%skeleton "lalr1.cc"
 %require "3.2"
-%language "c++"
+%defines
 %define api.parser.class {PlnParser}
-%define api.namespace {palan}
-%code requires {
+%parse-param	{ PlnLexer &lexer }
+%lex-param		{ PlnLexer &lexer }
+
+%code requires
+{
 #include "stackmachine/proc.h"
-int yylex(palan::PlnParser::semantic_type* yylval);
+class PlnLexer;
 }
-%define api.value.type  variant
+
+%code top
+{
+#define LOC(J, L) J["loc"] = { lexer.cur_fid, (int)L.begin.line, (int)L.begin.column, (int)L.end.line, (int)L.end.column }
+#define LOC_BE(J, B, E) J["loc"] = { lexer.cur_fid, (int)B.begin.line, (int)B.begin.column, (int)E.end.line, (int)E.end.column }
+}
+
+%code
+{
+#include "PlnLexer.h"
+
+int yylex(	palan::PlnParser::semantic_type* yylval,
+			palan::PlnParser::location_type* location,
+			PlnLexer& lexer);
+}
+
+%locations
+%define api.namespace {palan}
+%define parse.error	verbose
+%define api.value.type	variant
+
 %token IDENTIFIER INT_LITERAL DMP  INT_TYPE SEMICOLON
 %token LC RC LP RP
 %type <Expression*> expression intliteral_expression identifier_expression postfix_expression
@@ -26,6 +40,7 @@ int yylex(palan::PlnParser::semantic_type* yylval);
 %type <DeclarationList*> declaration_list
 %type <Root*> root
 %type <ParameterList*> parameter_list
+
 %%
 root
     :declaration_list
@@ -104,13 +119,21 @@ postfix_expression
 identifier_expression
     : IDENTIFIER
     {
-        $$ = StackMachine::get()->createIdentifierExp(yytext);
+        $$ = StackMachine::get()->createIdentifierExp(lexer.YYText());
     }
     ;
 intliteral_expression
     : INT_LITERAL
     {
-       $$ = StackMachine::get()->createIntLiteralExp(yytext);
+       $$ = StackMachine::get()->createIntLiteralExp(lexer.YYText());
     }
     ;
 %%
+
+namespace palan
+{
+void PlnParser::error(const location_type& l, const string& m)
+{
+
+}
+}

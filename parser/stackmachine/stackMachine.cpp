@@ -3,6 +3,9 @@
 //
 
 #include "proc.h"
+#include "../PlnLexer.h"
+
+using palan::PlnParser;
 
 Value Root::execute() {
     FunctionCallExp* pFunc = new FunctionCallExp("main");
@@ -26,15 +29,16 @@ const char* StackMachine::createFixedString(const char *ext) {
     return it.first->c_str();
 }
 
-extern "C" int yyparse(void);
-extern "C" FILE* yyin;
-
-int StackMachine::compile(FILE *fp) {
+int StackMachine::compile(ifstream& f) {
     m_pRoot = new Root();
-    yyin = fp;
-    if(yyparse()) {
+    PlnLexer lexer;
+    lexer.switch_streams(&f, &cout);
+
+    PlnParser parser(lexer);
+    if(parser.parse()) {
         return 1;
     }
+
     return 0;
 }
 

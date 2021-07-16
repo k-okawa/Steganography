@@ -5,6 +5,7 @@
 #include "./src/steganography/PngStegano.h"
 #include "./src/lua/LuaEngine.h"
 #include "./src/utils/fileutil.h"
+#include "../parser/stackmachine/proc.h"
 
 int main(int argc, char *argv[]) {
     argparse::ArgumentParser parser("Steganography");
@@ -45,6 +46,16 @@ int main(int argc, char *argv[]) {
         luaEngine->execString(luaScriptStr);
         luaEngine->execFunc("main");
     }
+
+    std::ifstream f;
+    f.open("./myscript.bc");
+    auto stackMachine = StackMachine::get();
+    if(stackMachine->compile(f)){
+        return 1;
+    }
+    std::cout << "exec my script" << std::endl;
+    stackMachine->execute();
+    stackMachine->destroy();
 
     return 0;
 }

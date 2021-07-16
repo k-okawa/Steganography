@@ -34,7 +34,7 @@ class StackMachine {
     StackMachine();
 public:
     virtual ~StackMachine();
-    int compile(FILE* fp);
+    int compile(ifstream& fp);
     void execute();
     void destroy();
     //インスタンス参照

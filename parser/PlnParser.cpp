@@ -34,26 +34,30 @@
 // especially those whose name start with YY_ or yy_.  They are
 // private implementation details that can be changed or removed.
 
+// "%code top" blocks.
+#line 15 "parser.y"
+
+#define LOC(J, L) J["loc"] = { lexer.cur_fid, (int)L.begin.line, (int)L.begin.column, (int)L.end.line, (int)L.end.column }
+#define LOC_BE(J, B, E) J["loc"] = { lexer.cur_fid, (int)B.begin.line, (int)B.begin.column, (int)E.end.line, (int)E.end.column }
+
+#line 44 "PlnParser.cpp"
 
 
-// First part of user prologue.
-#line 1 "parser.y"
-
-#include "stackmachine/proc.h"
-#define YYDEBUG 1
-extern char *yytext;
-int yyerror(char const *str){
-    extern int gLine;
-    fprintf(stderr,"%s, line: %d, near %s\n",str, gLine, yytext);
-    return 0;
-}
-
-#line 52 "parser.tab.cc"
 
 
-#include "parser.tab.hh"
+#include "PlnParser.hpp"
 
 
+// Unqualified %code blocks.
+#line 21 "parser.y"
+
+#include "PlnLexer.h"
+
+int yylex(	palan::PlnParser::semantic_type* yylval,
+			palan::PlnParser::location_type* location,
+			PlnLexer& lexer);
+
+#line 61 "PlnParser.cpp"
 
 
 #ifndef YY_
@@ -78,6 +82,25 @@ int yyerror(char const *str){
 # endif
 #endif
 
+#define YYRHSLOC(Rhs, K) ((Rhs)[K].location)
+/* YYLLOC_DEFAULT -- Set CURRENT to span from RHS[1] to RHS[N].
+   If N is 0, then set CURRENT to the empty location which ends
+   the previous symbol: RHS[0] (always defined).  */
+
+# ifndef YYLLOC_DEFAULT
+#  define YYLLOC_DEFAULT(Current, Rhs, N)                               \
+    do                                                                  \
+      if (N)                                                            \
+        {                                                               \
+          (Current).begin  = YYRHSLOC (Rhs, 1).begin;                   \
+          (Current).end    = YYRHSLOC (Rhs, N).end;                     \
+        }                                                               \
+      else                                                              \
+        {                                                               \
+          (Current).begin = (Current).end = YYRHSLOC (Rhs, 0).end;      \
+        }                                                               \
+    while (false)
+# endif
 
 
 // Enable debugging if requested.
@@ -125,18 +148,19 @@ int yyerror(char const *str){
 #define YYERROR         goto yyerrorlab
 #define YYRECOVERING()  (!!yyerrstatus_)
 
-#line 14 "parser.y"
+#line 30 "parser.y"
 namespace palan {
-#line 131 "parser.tab.cc"
+#line 154 "PlnParser.cpp"
 
   /// Build a parser object.
-  PlnParser::PlnParser ()
+  PlnParser::PlnParser (PlnLexer &lexer_yyarg)
 #if YYDEBUG
     : yydebug_ (false),
-      yycdebug_ (&std::cerr)
+      yycdebug_ (&std::cerr),
 #else
-
+    :
 #endif
+      lexer (lexer_yyarg)
   {}
 
   PlnParser::~PlnParser ()
@@ -154,6 +178,7 @@ namespace palan {
   PlnParser::basic_symbol<Base>::basic_symbol (const basic_symbol& that)
     : Base (that)
     , value ()
+    , location (that.location)
   {
     switch (this->kind ())
     {
@@ -258,6 +283,7 @@ namespace palan {
         break;
     }
 
+    location = YY_MOVE (s.location);
   }
 
   // by_kind.
@@ -346,7 +372,7 @@ namespace palan {
   {}
 
   PlnParser::stack_symbol_type::stack_symbol_type (YY_RVREF (stack_symbol_type) that)
-    : super_type (YY_MOVE (that.state))
+    : super_type (YY_MOVE (that.state), YY_MOVE (that.location))
   {
     switch (that.kind ())
     {
@@ -395,7 +421,7 @@ namespace palan {
   }
 
   PlnParser::stack_symbol_type::stack_symbol_type (state_type s, YY_MOVE_REF (symbol_type) that)
-    : super_type (s)
+    : super_type (s, YY_MOVE (that.location))
   {
     switch (that.kind ())
     {
@@ -486,6 +512,7 @@ namespace palan {
         break;
     }
 
+    location = that.location;
     return *this;
   }
 
@@ -533,6 +560,7 @@ namespace palan {
         break;
     }
 
+    location = that.location;
     // that is emptied.
     that.state = empty_state;
     return *this;
@@ -560,7 +588,8 @@ namespace palan {
       {
         symbol_kind_type yykind = yysym.kind ();
         yyo << (yykind < YYNTOKENS ? "token" : "nterm")
-            << ' ' << yysym.name () << " (";
+            << ' ' << yysym.name () << " ("
+            << yysym.location << ": ";
         YY_USE (yykind);
         yyo << ')';
       }
@@ -661,6 +690,9 @@ namespace palan {
     /// The lookahead symbol.
     symbol_type yyla;
 
+    /// The locations where the error started and ended.
+    stack_symbol_type yyerror_range[3];
+
     /// The return value of parse ().
     int yyresult;
 
@@ -709,7 +741,7 @@ namespace palan {
         try
 #endif // YY_EXCEPTIONS
           {
-            yyla.kind_ = yytranslate_ (yylex (&yyla.value));
+            yyla.kind_ = yytranslate_ (yylex (&yyla.value, &yyla.location, lexer));
           }
 #if YY_EXCEPTIONS
         catch (const syntax_error& yyexc)
@@ -821,6 +853,12 @@ namespace palan {
     }
 
 
+      // Default location.
+      {
+        stack_type::slice range (yystack_, yylen);
+        YYLLOC_DEFAULT (yylhs.location, range, yylen);
+        yyerror_range[1].location = yylhs.location;
+      }
 
       // Perform the reduction.
       YY_REDUCE_PRINT (yyn);
@@ -831,155 +869,155 @@ namespace palan {
           switch (yyn)
             {
   case 2: // root: declaration_list
-#line 32 "parser.y"
+#line 47 "parser.y"
     {
         yylhs.value.as < Root* > () = StackMachine::get()->addRootDeclarationList(yystack_[0].value.as < DeclarationList* > ());
     }
-#line 839 "parser.tab.cc"
+#line 877 "PlnParser.cpp"
     break;
 
   case 3: // declaration_list: declaration
-#line 38 "parser.y"
+#line 53 "parser.y"
     {
         yylhs.value.as < DeclarationList* > () = StackMachine::get()->createDeclarationList(yystack_[0].value.as < Declaration* > ());
     }
-#line 847 "parser.tab.cc"
+#line 885 "PlnParser.cpp"
     break;
 
   case 4: // declaration_list: declaration_list declaration
-#line 42 "parser.y"
+#line 57 "parser.y"
     {
         yylhs.value.as < DeclarationList* > () = StackMachine::get()->createDeclarationList(yystack_[1].value.as < DeclarationList* > (),yystack_[0].value.as < Declaration* > ());
     }
-#line 855 "parser.tab.cc"
+#line 893 "PlnParser.cpp"
     break;
 
   case 5: // declaration: INT_TYPE identifier_expression LP parameter_list RP compound_statement
-#line 48 "parser.y"
+#line 63 "parser.y"
     {
         yylhs.value.as < Declaration* > () = StackMachine::get()->createIntFunctionDeclaration(yystack_[4].value.as < Expression* > (),yystack_[0].value.as < Statement* > ());
     }
-#line 863 "parser.tab.cc"
+#line 901 "PlnParser.cpp"
     break;
 
   case 6: // parameter_list: %empty
-#line 54 "parser.y"
+#line 69 "parser.y"
     {
         yylhs.value.as < ParameterList* > () = StackMachine::get()->createParameterList();
     }
-#line 871 "parser.tab.cc"
+#line 909 "PlnParser.cpp"
     break;
 
   case 7: // statement_list: statement
-#line 60 "parser.y"
+#line 75 "parser.y"
     {
         yylhs.value.as < StatementList* > () = StackMachine::get()->createStatementList(yystack_[0].value.as < Statement* > ());
     }
-#line 879 "parser.tab.cc"
+#line 917 "PlnParser.cpp"
     break;
 
   case 8: // statement_list: statement_list statement
-#line 64 "parser.y"
+#line 79 "parser.y"
     {
         yylhs.value.as < StatementList* > () = StackMachine::get()->createStatementList(yystack_[1].value.as < StatementList* > (),yystack_[0].value.as < Statement* > ());
     }
-#line 887 "parser.tab.cc"
+#line 925 "PlnParser.cpp"
     break;
 
   case 9: // statement: dump_statement
-#line 68 "parser.y"
+#line 83 "parser.y"
      { yylhs.value.as < Statement* > () = yystack_[0].value.as < Statement* > (); }
-#line 893 "parser.tab.cc"
+#line 931 "PlnParser.cpp"
     break;
 
   case 10: // statement: compound_statement
-#line 69 "parser.y"
+#line 84 "parser.y"
      { yylhs.value.as < Statement* > () = yystack_[0].value.as < Statement* > (); }
-#line 899 "parser.tab.cc"
+#line 937 "PlnParser.cpp"
     break;
 
   case 11: // statement: expression_statement
-#line 70 "parser.y"
+#line 85 "parser.y"
      { yylhs.value.as < Statement* > () = yystack_[0].value.as < Statement* > (); }
-#line 905 "parser.tab.cc"
+#line 943 "PlnParser.cpp"
     break;
 
   case 12: // expression_statement: expression SEMICOLON
-#line 73 "parser.y"
+#line 88 "parser.y"
     {
         yylhs.value.as < Statement* > () = StackMachine::get()->createExpressionStm(yystack_[1].value.as < Expression* > ());
     }
-#line 913 "parser.tab.cc"
+#line 951 "PlnParser.cpp"
     break;
 
   case 13: // dump_statement: DMP expression SEMICOLON
-#line 79 "parser.y"
+#line 94 "parser.y"
     {
         yylhs.value.as < Statement* > () = StackMachine::get()->createDumpStm(yystack_[1].value.as < Expression* > ());
     }
-#line 921 "parser.tab.cc"
+#line 959 "PlnParser.cpp"
     break;
 
   case 14: // compound_statement: LC RC
-#line 85 "parser.y"
+#line 100 "parser.y"
     {
         yylhs.value.as < Statement* > () = StackMachine::get()->createCompoundStatement();
     }
-#line 929 "parser.tab.cc"
+#line 967 "PlnParser.cpp"
     break;
 
   case 15: // compound_statement: LC statement_list RC
-#line 89 "parser.y"
+#line 104 "parser.y"
     {
         yylhs.value.as < Statement* > () = StackMachine::get()->createCompoundStatement(yystack_[1].value.as < StatementList* > ());
     }
-#line 937 "parser.tab.cc"
+#line 975 "PlnParser.cpp"
     break;
 
   case 16: // expression: intliteral_expression
-#line 94 "parser.y"
+#line 109 "parser.y"
      { yylhs.value.as < Expression* > () = yystack_[0].value.as < Expression* > (); }
-#line 943 "parser.tab.cc"
+#line 981 "PlnParser.cpp"
     break;
 
   case 17: // expression: identifier_expression
-#line 95 "parser.y"
+#line 110 "parser.y"
      { yylhs.value.as < Expression* > () = yystack_[0].value.as < Expression* > (); }
-#line 949 "parser.tab.cc"
+#line 987 "PlnParser.cpp"
     break;
 
   case 18: // expression: postfix_expression
-#line 96 "parser.y"
+#line 111 "parser.y"
      { yylhs.value.as < Expression* > () = yystack_[0].value.as < Expression* > (); }
-#line 955 "parser.tab.cc"
+#line 993 "PlnParser.cpp"
     break;
 
   case 19: // postfix_expression: identifier_expression LP RP
-#line 100 "parser.y"
+#line 115 "parser.y"
     {
         yylhs.value.as < Expression* > () = StackMachine::get()->createFunctionCallExp(yystack_[2].value.as < Expression* > ());
     }
-#line 963 "parser.tab.cc"
+#line 1001 "PlnParser.cpp"
     break;
 
   case 20: // identifier_expression: IDENTIFIER
-#line 106 "parser.y"
+#line 121 "parser.y"
     {
-        yylhs.value.as < Expression* > () = StackMachine::get()->createIdentifierExp(yytext);
+        yylhs.value.as < Expression* > () = StackMachine::get()->createIdentifierExp(lexer.YYText());
     }
-#line 971 "parser.tab.cc"
+#line 1009 "PlnParser.cpp"
     break;
 
   case 21: // intliteral_expression: INT_LITERAL
-#line 112 "parser.y"
+#line 127 "parser.y"
     {
-       yylhs.value.as < Expression* > () = StackMachine::get()->createIntLiteralExp(yytext);
+       yylhs.value.as < Expression* > () = StackMachine::get()->createIntLiteralExp(lexer.YYText());
     }
-#line 979 "parser.tab.cc"
+#line 1017 "PlnParser.cpp"
     break;
 
 
-#line 983 "parser.tab.cc"
+#line 1021 "PlnParser.cpp"
 
             default:
               break;
@@ -1011,11 +1049,13 @@ namespace palan {
     if (!yyerrstatus_)
       {
         ++yynerrs_;
-        std::string msg = YY_("syntax error");
-        error (YY_MOVE (msg));
+        context yyctx (*this, yyla);
+        std::string msg = yysyntax_error_ (yyctx);
+        error (yyla.location, YY_MOVE (msg));
       }
 
 
+    yyerror_range[1].location = yyla.location;
     if (yyerrstatus_ == 3)
       {
         /* If just tried and failed to reuse lookahead token after an
@@ -1077,6 +1117,7 @@ namespace palan {
         if (yystack_.size () == 1)
           YYABORT;
 
+        yyerror_range[1].location = yystack_[0].location;
         yy_destroy_ ("Error: popping", yystack_[0]);
         yypop_ ();
         YY_STACK_PRINT ();
@@ -1084,6 +1125,8 @@ namespace palan {
     {
       stack_symbol_type error_token;
 
+      yyerror_range[2].location = yyla.location;
+      YYLLOC_DEFAULT (error_token.location, yyerror_range, 2);
 
       // Shift the error token.
       error_token.state = state_type (yyn);
@@ -1149,19 +1192,178 @@ namespace palan {
   void
   PlnParser::error (const syntax_error& yyexc)
   {
-    error (yyexc.what ());
+    error (yyexc.location, yyexc.what ());
   }
 
-#if YYDEBUG || 0
-  const char *
+  /* Return YYSTR after stripping away unnecessary quotes and
+     backslashes, so that it's suitable for yyerror.  The heuristic is
+     that double-quoting is unnecessary unless the string contains an
+     apostrophe, a comma, or backslash (other than backslash-backslash).
+     YYSTR is taken from yytname.  */
+  std::string
+  PlnParser::yytnamerr_ (const char *yystr)
+  {
+    if (*yystr == '"')
+      {
+        std::string yyr;
+        char const *yyp = yystr;
+
+        for (;;)
+          switch (*++yyp)
+            {
+            case '\'':
+            case ',':
+              goto do_not_strip_quotes;
+
+            case '\\':
+              if (*++yyp != '\\')
+                goto do_not_strip_quotes;
+              else
+                goto append;
+
+            append:
+            default:
+              yyr += *yyp;
+              break;
+
+            case '"':
+              return yyr;
+            }
+      do_not_strip_quotes: ;
+      }
+
+    return yystr;
+  }
+
+  std::string
   PlnParser::symbol_name (symbol_kind_type yysymbol)
   {
-    return yytname_[yysymbol];
+    return yytnamerr_ (yytname_[yysymbol]);
   }
-#endif // #if YYDEBUG || 0
 
 
 
+  // PlnParser::context.
+  PlnParser::context::context (const PlnParser& yyparser, const symbol_type& yyla)
+    : yyparser_ (yyparser)
+    , yyla_ (yyla)
+  {}
+
+  int
+  PlnParser::context::expected_tokens (symbol_kind_type yyarg[], int yyargn) const
+  {
+    // Actual number of expected tokens
+    int yycount = 0;
+
+    int yyn = yypact_[+yyparser_.yystack_[0].state];
+    if (!yy_pact_value_is_default_ (yyn))
+      {
+        /* Start YYX at -YYN if negative to avoid negative indexes in
+           YYCHECK.  In other words, skip the first -YYN actions for
+           this state because they are default actions.  */
+        int yyxbegin = yyn < 0 ? -yyn : 0;
+        // Stay within bounds of both yycheck and yytname.
+        int yychecklim = yylast_ - yyn + 1;
+        int yyxend = yychecklim < YYNTOKENS ? yychecklim : YYNTOKENS;
+        for (int yyx = yyxbegin; yyx < yyxend; ++yyx)
+          if (yycheck_[yyx + yyn] == yyx && yyx != symbol_kind::S_YYerror
+              && !yy_table_value_is_error_ (yytable_[yyx + yyn]))
+            {
+              if (!yyarg)
+                ++yycount;
+              else if (yycount == yyargn)
+                return 0;
+              else
+                yyarg[yycount++] = YY_CAST (symbol_kind_type, yyx);
+            }
+      }
+
+    if (yyarg && yycount == 0 && 0 < yyargn)
+      yyarg[0] = symbol_kind::S_YYEMPTY;
+    return yycount;
+  }
+
+
+
+  int
+  PlnParser::yy_syntax_error_arguments_ (const context& yyctx,
+                                                 symbol_kind_type yyarg[], int yyargn) const
+  {
+    /* There are many possibilities here to consider:
+       - If this state is a consistent state with a default action, then
+         the only way this function was invoked is if the default action
+         is an error action.  In that case, don't check for expected
+         tokens because there are none.
+       - The only way there can be no lookahead present (in yyla) is
+         if this state is a consistent state with a default action.
+         Thus, detecting the absence of a lookahead is sufficient to
+         determine that there is no unexpected or expected token to
+         report.  In that case, just report a simple "syntax error".
+       - Don't assume there isn't a lookahead just because this state is
+         a consistent state with a default action.  There might have
+         been a previous inconsistent state, consistent state with a
+         non-default action, or user semantic action that manipulated
+         yyla.  (However, yyla is currently not documented for users.)
+       - Of course, the expected token list depends on states to have
+         correct lookahead information, and it depends on the parser not
+         to perform extra reductions after fetching a lookahead from the
+         scanner and before detecting a syntax error.  Thus, state merging
+         (from LALR or IELR) and default reductions corrupt the expected
+         token list.  However, the list is correct for canonical LR with
+         one exception: it will still contain any token that will not be
+         accepted due to an error action in a later state.
+    */
+
+    if (!yyctx.lookahead ().empty ())
+      {
+        if (yyarg)
+          yyarg[0] = yyctx.token ();
+        int yyn = yyctx.expected_tokens (yyarg ? yyarg + 1 : yyarg, yyargn - 1);
+        return yyn + 1;
+      }
+    return 0;
+  }
+
+  // Generate an error message.
+  std::string
+  PlnParser::yysyntax_error_ (const context& yyctx) const
+  {
+    // Its maximum.
+    enum { YYARGS_MAX = 5 };
+    // Arguments of yyformat.
+    symbol_kind_type yyarg[YYARGS_MAX];
+    int yycount = yy_syntax_error_arguments_ (yyctx, yyarg, YYARGS_MAX);
+
+    char const* yyformat = YY_NULLPTR;
+    switch (yycount)
+      {
+#define YYCASE_(N, S)                         \
+        case N:                               \
+          yyformat = S;                       \
+        break
+      default: // Avoid compiler warnings.
+        YYCASE_ (0, YY_("syntax error"));
+        YYCASE_ (1, YY_("syntax error, unexpected %s"));
+        YYCASE_ (2, YY_("syntax error, unexpected %s, expecting %s"));
+        YYCASE_ (3, YY_("syntax error, unexpected %s, expecting %s or %s"));
+        YYCASE_ (4, YY_("syntax error, unexpected %s, expecting %s or %s or %s"));
+        YYCASE_ (5, YY_("syntax error, unexpected %s, expecting %s or %s or %s or %s"));
+#undef YYCASE_
+      }
+
+    std::string yyres;
+    // Argument number.
+    std::ptrdiff_t yyi = 0;
+    for (char const* yyp = yyformat; *yyp; ++yyp)
+      if (yyp[0] == '%' && yyp[1] == 's' && yyi < yycount)
+        {
+          yyres += symbol_name (yyarg[yyi++]);
+          ++yyp;
+        }
+      else
+        yyres += *yyp;
+    return yyres;
+  }
 
 
   const signed char PlnParser::yypact_ninf_ = -4;
@@ -1244,7 +1446,7 @@ namespace palan {
   };
 
 
-#if YYDEBUG
+#if YYDEBUG || 1
   // YYTNAME[SYMBOL-NUM] -- String name of the symbol SYMBOL-NUM.
   // First, the terminals, then, starting at \a YYNTOKENS, nonterminals.
   const char*
@@ -1264,9 +1466,9 @@ namespace palan {
   const signed char
   PlnParser::yyrline_[] =
   {
-       0,    31,    31,    37,    41,    47,    54,    59,    63,    68,
-      69,    70,    72,    78,    84,    88,    94,    95,    96,    99,
-     105,   111
+       0,    46,    46,    52,    56,    62,    69,    74,    78,    83,
+      84,    85,    87,    93,    99,   103,   109,   110,   111,   114,
+     120,   126
   };
 
   void
@@ -1344,8 +1546,17 @@ namespace palan {
       return symbol_kind::S_YYUNDEF;
   }
 
-#line 14 "parser.y"
+#line 30 "parser.y"
 } // palan
-#line 1350 "parser.tab.cc"
+#line 1552 "PlnParser.cpp"
 
-#line 116 "parser.y"
+#line 131 "parser.y"
+
+
+namespace palan
+{
+void PlnParser::error(const location_type& l, const string& m)
+{
+
+}
+}
