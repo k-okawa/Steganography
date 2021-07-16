@@ -31,12 +31,29 @@ https://qiita.com/hiz_/items/8739c46ddd2563a5603f
 brew install flex bison
 ```
 
-### flexビルド
+homebrewでインストールしたbison,flexのバージョンに変更する
 ```shell
-flex -l parser.l
+brew link flex --force
+brew link bison --force
 ```
 
-### bisonビルド
+### flexビルド
+flex 2.6.4
 ```shell
-bison -dy parser.y
+flex -o PlnLexer.cpp lexer.l
 ```
+
+ビルドした後、PlnLexer.cppのincludeを変える
+
+304行目
+
+#include <FlexLexer.h> → #include "PlnLexer.h"
+
+### bisonビルド
+bison (GNU Bison) 3.7.6
+```shell
+bison -o PlnParser.cpp -r all --report-file=bison.log parser.y
+```
+
+C++はこちらを参考にしてみる
+https://github.com/tosyama/palan/tree/master/src/ast

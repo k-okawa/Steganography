@@ -5,9 +5,7 @@
 #include "./src/steganography/PngStegano.h"
 #include "./src/lua/LuaEngine.h"
 #include "./src/utils/fileutil.h"
-
-extern "C" int yyparse(void);
-extern "C" FILE *yyin;
+#include "../parser/stackmachine/proc.h"
 
 int main(int argc, char *argv[]) {
     argparse::ArgumentParser parser("Steganography");
@@ -49,9 +47,15 @@ int main(int argc, char *argv[]) {
         luaEngine->execFunc("main");
     }
 
-    char str[] = "1+1\n";
-    yyin = fmemopen(str, strlen(str), "r");
-    yyparse();
+    std::ifstream f;
+    f.open("./myscript.bc");
+    auto stackMachine = StackMachine::get();
+    if(stackMachine->compile(f)){
+        return 1;
+    }
+    std::cout << "exec my script" << std::endl;
+    stackMachine->execute();
+    stackMachine->destroy();
 
     return 0;
 }

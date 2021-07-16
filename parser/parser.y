@@ -1,61 +1,144 @@
-%{
-#include <stdio.h>
-#include <stdlib.h>
-#define YYDEBUG 1
+%skeleton "lalr1.cc"
+%require "3.2"
+%defines
+%define api.parser.class {PlnParser}
+%parse-param	{ PlnLexer &lexer }
+%lex-param		{ PlnLexer &lexer }
 
-extern int yyerror( const char* ) ;
-extern int yyparse( void ) ;
-extern int yylex( void ) ;
-extern char* yytext ;
-extern FILE* yyin ;
-
-%}
-%union {
-    int     int_value;
-    double  double_value;
-}
-%token <double_value>    DOUBLE_LITERAL
-%token ADD SUB MUL DIV CR
-%type <double_value> expression term primary_expression
-%%
-line_list
-    : line
-    | line_list line
-    ;
-line
-    : expression CR
-    {
-        printf(">>%lf\n", $1);
-    }
-expression
-    : term
-    | expression ADD term
-    {
-        $$ = $1 + $3;
-    }
-    | expression SUB term
-    {
-        $$ = $1 - $3;
-    }
-    ;
-term
-    : primary_expression
-    | term MUL primary_expression
-    {
-        $$ = $1 * $3;
-    }
-    | term DIV primary_expression
-    {
-        $$ = $1 / $3;
-    }
-    ;
-primary_expression
-    : DOUBLE_LITERAL
-    ;
-%%
-
-int yyerror( char const* str )
+%code requires
 {
-	fprintf( stderr , "%s\n" , str );
-	return 0 ;
+#include "stackmachine/proc.h"
+class PlnLexer;
+}
+
+%code top
+{
+#define LOC(J, L) J["loc"] = { lexer.cur_fid, (int)L.begin.line, (int)L.begin.column, (int)L.end.line, (int)L.end.column }
+#define LOC_BE(J, B, E) J["loc"] = { lexer.cur_fid, (int)B.begin.line, (int)B.begin.column, (int)E.end.line, (int)E.end.column }
+}
+
+%code
+{
+#include "PlnLexer.h"
+
+int yylex(	palan::PlnParser::semantic_type* yylval,
+			palan::PlnParser::location_type* location,
+			PlnLexer& lexer);
+}
+
+%locations
+%define api.namespace {palan}
+%define parse.error	verbose
+%define api.value.type	variant
+
+%token IDENTIFIER INT_LITERAL DMP FUNC INT_TYPE STR DOUBLE_QUOT SEMICOLON
+%token LC RC LP RP
+%type <Expression*> expression intliteral_expression identifier_expression postfix_expression
+%type <StatementList*> statement_list
+%type <Statement*>  dump_statement expression_statement compound_statement statement
+%type <Declaration*> declaration
+%type <DeclarationList*> declaration_list
+%type <Root*> root
+%type <ParameterList*> parameter_list
+
+%%
+root
+    :declaration_list
+    {
+        $$ = StackMachine::get()->addRootDeclarationList($1);
+    }
+    ;
+declaration_list
+    :declaration
+    {
+        $$ = StackMachine::get()->createDeclarationList($1);
+    }
+    |declaration_list declaration
+    {
+        $$ = StackMachine::get()->createDeclarationList($1,$2);
+    }
+    ;
+declaration
+    :FUNC identifier_expression LP parameter_list RP compound_statement
+    {
+        $$ = StackMachine::get()->createIntFunctionDeclaration($2,$6);
+    }
+    ;
+parameter_list
+    :/*empty*/
+    {
+        $$ = StackMachine::get()->createParameterList();
+    }
+    ;
+statement_list
+    :statement
+    {
+        $$ = StackMachine::get()->createStatementList($1);
+    }
+    |statement_list statement
+    {
+        $$ = StackMachine::get()->createStatementList($1,$2);
+    }
+statement
+    :dump_statement
+    |compound_statement
+    |expression_statement
+expression_statement
+    :expression SEMICOLON
+    {
+        $$ = StackMachine::get()->createExpressionStm($1);
+    }
+    ;
+dump_statement
+    :DMP LP expression RP SEMICOLON
+    {
+        $$ = StackMachine::get()->createDumpStm($3);
+    }
+    ;
+compound_statement
+    :LC RC
+    {
+        $$ = StackMachine::get()->createCompoundStatement();
+    }
+    |LC statement_list RC
+    {
+        $$ = StackMachine::get()->createCompoundStatement($2);
+    }
+    ;
+expression
+    :intliteral_expression
+    |identifier_expression
+    |postfix_expression
+    ;
+postfix_expression
+    : identifier_expression LP  RP
+    {
+        $$ = StackMachine::get()->createFunctionCallExp($1);
+    }
+    ;
+identifier_expression
+    : STR
+    {
+        string str(lexer.YYText()+1,lexer.YYLeng()-2);
+        $$ = StackMachine::get()->createIdentifierExp(str.c_str());
+    }
+    | IDENTIFIER
+    {
+        $$ = StackMachine::get()->createIdentifierExp(lexer.YYText());
+    }
+    ;
+intliteral_expression
+    : INT_LITERAL
+    {
+       $$ = StackMachine::get()->createIntLiteralExp(lexer.YYText());
+    }
+    ;
+%%
+
+namespace palan
+{
+void PlnParser::error(const location_type& l, const string& m)
+{
+
+}
 }
