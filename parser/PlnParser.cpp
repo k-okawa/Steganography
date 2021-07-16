@@ -892,7 +892,7 @@ namespace palan {
 #line 893 "PlnParser.cpp"
     break;
 
-  case 5: // declaration: INT_TYPE identifier_expression LP parameter_list RP compound_statement
+  case 5: // declaration: FUNC identifier_expression LP parameter_list RP compound_statement
 #line 63 "parser.y"
     {
         yylhs.value.as < Declaration* > () = StackMachine::get()->createIntFunctionDeclaration(yystack_[4].value.as < Expression* > (),yystack_[0].value.as < Statement* > ());
@@ -950,10 +950,10 @@ namespace palan {
 #line 951 "PlnParser.cpp"
     break;
 
-  case 13: // dump_statement: DMP expression SEMICOLON
+  case 13: // dump_statement: DMP LP expression RP SEMICOLON
 #line 94 "parser.y"
     {
-        yylhs.value.as < Statement* > () = StackMachine::get()->createDumpStm(yystack_[1].value.as < Expression* > ());
+        yylhs.value.as < Statement* > () = StackMachine::get()->createDumpStm(yystack_[2].value.as < Expression* > ());
     }
 #line 959 "PlnParser.cpp"
     break;
@@ -1000,24 +1000,33 @@ namespace palan {
 #line 1001 "PlnParser.cpp"
     break;
 
-  case 20: // identifier_expression: IDENTIFIER
+  case 20: // identifier_expression: STR
 #line 121 "parser.y"
+    {
+        string str(lexer.YYText()+1,lexer.YYLeng()-2);
+        yylhs.value.as < Expression* > () = StackMachine::get()->createIdentifierExp(str.c_str());
+    }
+#line 1010 "PlnParser.cpp"
+    break;
+
+  case 21: // identifier_expression: IDENTIFIER
+#line 126 "parser.y"
     {
         yylhs.value.as < Expression* > () = StackMachine::get()->createIdentifierExp(lexer.YYText());
     }
-#line 1009 "PlnParser.cpp"
+#line 1018 "PlnParser.cpp"
     break;
 
-  case 21: // intliteral_expression: INT_LITERAL
-#line 127 "parser.y"
+  case 22: // intliteral_expression: INT_LITERAL
+#line 132 "parser.y"
     {
        yylhs.value.as < Expression* > () = StackMachine::get()->createIntLiteralExp(lexer.YYText());
     }
-#line 1017 "PlnParser.cpp"
+#line 1026 "PlnParser.cpp"
     break;
 
 
-#line 1021 "PlnParser.cpp"
+#line 1030 "PlnParser.cpp"
 
             default:
               break;
@@ -1366,83 +1375,83 @@ namespace palan {
   }
 
 
-  const signed char PlnParser::yypact_ninf_ = -4;
+  const signed char PlnParser::yypact_ninf_ = -8;
 
   const signed char PlnParser::yytable_ninf_ = -1;
 
   const signed char
   PlnParser::yypact_[] =
   {
-       5,     7,    14,     5,    -4,    -4,     6,    -4,    -4,    -4,
-       8,     9,    -3,    -4,    -4,     0,    -4,     4,    -4,    -4,
-      -4,    -4,    11,    -4,    10,    -4,    15,    -4,    -4,    -4,
-      12,    -4,    -4
+      -2,    17,     3,    -2,    -8,    -8,    -8,    -7,    -8,    -8,
+      -8,    -1,    -4,    -3,    -8,    -8,     1,    -8,     7,    -8,
+      -8,    -8,    -8,    12,    -8,    10,    -8,    13,    -8,    -8,
+      -8,    14,    15,    -8,    16,    -8
   };
 
   const signed char
   PlnParser::yydefact_[] =
   {
-       0,     0,     0,     2,     3,    20,     0,     1,     4,     6,
-       0,     0,     0,     5,    21,     0,    14,     0,     7,    11,
-       9,    10,     0,    18,    17,    16,     0,    15,     8,    12,
-       0,    13,    19
+       0,     0,     0,     2,     3,    21,    20,     0,     1,     4,
+       6,     0,     0,     0,     5,    22,     0,    14,     0,     7,
+      11,     9,    10,     0,    18,    17,    16,     0,    15,     8,
+      12,     0,     0,    19,     0,    13
   };
 
   const signed char
   PlnParser::yypgoto_[] =
   {
-      -4,    -4,    -4,    18,    -4,    -4,    -2,    -4,    -4,    13,
-      16,    -4,    24,    -4
+      -8,    -8,    -8,    21,    -8,    -8,     9,    -8,    -8,    18,
+       4,    -8,    31,    -8
   };
 
   const signed char
   PlnParser::yydefgoto_[] =
   {
-       0,     2,     3,     4,    10,    17,    18,    19,    20,    21,
-      22,    23,    24,    25
+       0,     2,     3,     4,    11,    18,    19,    20,    21,    22,
+      23,    24,    25,    26
   };
 
   const signed char
   PlnParser::yytable_[] =
   {
-       5,    14,    15,     5,    14,    12,    16,     5,    14,    15,
-       5,     1,    12,    27,     7,    28,     9,    12,    29,    11,
-      30,     8,    31,    32,    13,     6,     0,     0,     0,     0,
-       0,    26
+       5,    15,    16,     8,     1,     6,    10,    13,    13,    17,
+       5,    15,    16,    12,    27,     6,     5,    15,    13,    28,
+       5,     6,    30,    31,     9,     6,    35,    29,    33,    34,
+      14,    32,     7
   };
 
   const signed char
   PlnParser::yycheck_[] =
   {
-       3,     4,     5,     3,     4,     8,     9,     3,     4,     5,
-       3,     6,     8,     9,     0,    17,    10,     8,     7,    11,
-      10,     3,     7,    11,    11,     1,    -1,    -1,    -1,    -1,
-      -1,    15
+       3,     4,     5,     0,     6,     8,    13,    11,    11,    12,
+       3,     4,     5,    14,    13,     8,     3,     4,    11,    12,
+       3,     8,    10,    13,     3,     8,    10,    18,    14,    14,
+      12,    27,     1
   };
 
   const signed char
   PlnParser::yystos_[] =
   {
-       0,     6,    13,    14,    15,     3,    24,     0,    15,    10,
-      16,    11,     8,    21,     4,     5,     9,    17,    18,    19,
-      20,    21,    22,    23,    24,    25,    22,     9,    18,     7,
-      10,     7,    11
+       0,     6,    16,    17,    18,     3,     8,    27,     0,    18,
+      13,    19,    14,    11,    24,     4,     5,    12,    20,    21,
+      22,    23,    24,    25,    26,    27,    28,    13,    12,    21,
+      10,    13,    25,    14,    14,    10
   };
 
   const signed char
   PlnParser::yyr1_[] =
   {
-       0,    12,    13,    14,    14,    15,    16,    17,    17,    18,
-      18,    18,    19,    20,    21,    21,    22,    22,    22,    23,
-      24,    25
+       0,    15,    16,    17,    17,    18,    19,    20,    20,    21,
+      21,    21,    22,    23,    24,    24,    25,    25,    25,    26,
+      27,    27,    28
   };
 
   const signed char
   PlnParser::yyr2_[] =
   {
        0,     2,     1,     1,     2,     6,     0,     1,     2,     1,
-       1,     1,     2,     3,     2,     3,     1,     1,     1,     3,
-       1,     1
+       1,     1,     2,     5,     2,     3,     1,     1,     1,     3,
+       1,     1,     1
   };
 
 
@@ -1453,9 +1462,10 @@ namespace palan {
   const PlnParser::yytname_[] =
   {
   "\"end of file\"", "error", "\"invalid token\"", "IDENTIFIER",
-  "INT_LITERAL", "DMP", "INT_TYPE", "SEMICOLON", "LC", "RC", "LP", "RP",
-  "$accept", "root", "declaration_list", "declaration", "parameter_list",
-  "statement_list", "statement", "expression_statement", "dump_statement",
+  "INT_LITERAL", "DMP", "FUNC", "INT_TYPE", "STR", "DOUBLE_QUOT",
+  "SEMICOLON", "LC", "RC", "LP", "RP", "$accept", "root",
+  "declaration_list", "declaration", "parameter_list", "statement_list",
+  "statement", "expression_statement", "dump_statement",
   "compound_statement", "expression", "postfix_expression",
   "identifier_expression", "intliteral_expression", YY_NULLPTR
   };
@@ -1463,12 +1473,12 @@ namespace palan {
 
 
 #if YYDEBUG
-  const signed char
+  const unsigned char
   PlnParser::yyrline_[] =
   {
        0,    46,    46,    52,    56,    62,    69,    74,    78,    83,
       84,    85,    87,    93,    99,   103,   109,   110,   111,   114,
-     120,   126
+     120,   125,   131
   };
 
   void
@@ -1533,10 +1543,10 @@ namespace palan {
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     1,     2,     3,     4,
-       5,     6,     7,     8,     9,    10,    11
+       5,     6,     7,     8,     9,    10,    11,    12,    13,    14
     };
     // Last valid token kind.
-    const int code_max = 266;
+    const int code_max = 269;
 
     if (t <= 0)
       return symbol_kind::S_YYEOF;
@@ -1548,9 +1558,9 @@ namespace palan {
 
 #line 30 "parser.y"
 } // palan
-#line 1552 "PlnParser.cpp"
+#line 1562 "PlnParser.cpp"
 
-#line 131 "parser.y"
+#line 136 "parser.y"
 
 
 namespace palan

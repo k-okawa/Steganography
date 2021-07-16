@@ -10,6 +10,7 @@ enum class ValueType {
     boolVal,
     intVal,
     doubleVal,
+    stringVal,
 };
 
 struct Value {
@@ -19,10 +20,12 @@ struct Value {
         int intV;
         double doubleV;
     };
+    std::string stringV;
     explicit Value();
     explicit Value(bool b);
     explicit Value(int i);
     explicit Value(double d);
+    explicit Value(std::string s);
     Value(const Value& other);
     Value& operator=(const Value& other);
     ~Value() {}

@@ -448,12 +448,15 @@ namespace palan {
     IDENTIFIER = 258,              // IDENTIFIER
     INT_LITERAL = 259,             // INT_LITERAL
     DMP = 260,                     // DMP
-    INT_TYPE = 261,                // INT_TYPE
-    SEMICOLON = 262,               // SEMICOLON
-    LC = 263,                      // LC
-    RC = 264,                      // RC
-    LP = 265,                      // LP
-    RP = 266                       // RP
+    FUNC = 261,                    // FUNC
+    INT_TYPE = 262,                // INT_TYPE
+    STR = 263,                     // STR
+    DOUBLE_QUOT = 264,             // DOUBLE_QUOT
+    SEMICOLON = 265,               // SEMICOLON
+    LC = 266,                      // LC
+    RC = 267,                      // RC
+    LP = 268,                      // LP
+    RP = 269                       // RP
       };
       /// Backward compatibility alias (Bison 3.6).
       typedef token_kind_type yytokentype;
@@ -470,7 +473,7 @@ namespace palan {
     {
       enum symbol_kind_type
       {
-        YYNTOKENS = 12, ///< Number of tokens.
+        YYNTOKENS = 15, ///< Number of tokens.
         S_YYEMPTY = -2,
         S_YYEOF = 0,                             // "end of file"
         S_YYerror = 1,                           // error
@@ -478,26 +481,29 @@ namespace palan {
         S_IDENTIFIER = 3,                        // IDENTIFIER
         S_INT_LITERAL = 4,                       // INT_LITERAL
         S_DMP = 5,                               // DMP
-        S_INT_TYPE = 6,                          // INT_TYPE
-        S_SEMICOLON = 7,                         // SEMICOLON
-        S_LC = 8,                                // LC
-        S_RC = 9,                                // RC
-        S_LP = 10,                               // LP
-        S_RP = 11,                               // RP
-        S_YYACCEPT = 12,                         // $accept
-        S_root = 13,                             // root
-        S_declaration_list = 14,                 // declaration_list
-        S_declaration = 15,                      // declaration
-        S_parameter_list = 16,                   // parameter_list
-        S_statement_list = 17,                   // statement_list
-        S_statement = 18,                        // statement
-        S_expression_statement = 19,             // expression_statement
-        S_dump_statement = 20,                   // dump_statement
-        S_compound_statement = 21,               // compound_statement
-        S_expression = 22,                       // expression
-        S_postfix_expression = 23,               // postfix_expression
-        S_identifier_expression = 24,            // identifier_expression
-        S_intliteral_expression = 25             // intliteral_expression
+        S_FUNC = 6,                              // FUNC
+        S_INT_TYPE = 7,                          // INT_TYPE
+        S_STR = 8,                               // STR
+        S_DOUBLE_QUOT = 9,                       // DOUBLE_QUOT
+        S_SEMICOLON = 10,                        // SEMICOLON
+        S_LC = 11,                               // LC
+        S_RC = 12,                               // RC
+        S_LP = 13,                               // LP
+        S_RP = 14,                               // RP
+        S_YYACCEPT = 15,                         // $accept
+        S_root = 16,                             // root
+        S_declaration_list = 17,                 // declaration_list
+        S_declaration = 18,                      // declaration
+        S_parameter_list = 19,                   // parameter_list
+        S_statement_list = 20,                   // statement_list
+        S_statement = 21,                        // statement
+        S_expression_statement = 22,             // expression_statement
+        S_dump_statement = 23,                   // dump_statement
+        S_compound_statement = 24,               // compound_statement
+        S_expression = 25,                       // expression
+        S_postfix_expression = 26,               // postfix_expression
+        S_identifier_expression = 27,            // identifier_expression
+        S_intliteral_expression = 28             // intliteral_expression
       };
     };
 
@@ -980,6 +986,21 @@ switch (yykind)
 #if 201103L <= YY_CPLUSPLUS
       static
       symbol_type
+      make_FUNC (location_type l)
+      {
+        return symbol_type (token::FUNC, std::move (l));
+      }
+#else
+      static
+      symbol_type
+      make_FUNC (const location_type& l)
+      {
+        return symbol_type (token::FUNC, l);
+      }
+#endif
+#if 201103L <= YY_CPLUSPLUS
+      static
+      symbol_type
       make_INT_TYPE (location_type l)
       {
         return symbol_type (token::INT_TYPE, std::move (l));
@@ -990,6 +1011,36 @@ switch (yykind)
       make_INT_TYPE (const location_type& l)
       {
         return symbol_type (token::INT_TYPE, l);
+      }
+#endif
+#if 201103L <= YY_CPLUSPLUS
+      static
+      symbol_type
+      make_STR (location_type l)
+      {
+        return symbol_type (token::STR, std::move (l));
+      }
+#else
+      static
+      symbol_type
+      make_STR (const location_type& l)
+      {
+        return symbol_type (token::STR, l);
+      }
+#endif
+#if 201103L <= YY_CPLUSPLUS
+      static
+      symbol_type
+      make_DOUBLE_QUOT (location_type l)
+      {
+        return symbol_type (token::DOUBLE_QUOT, std::move (l));
+      }
+#else
+      static
+      symbol_type
+      make_DOUBLE_QUOT (const location_type& l)
+      {
+        return symbol_type (token::DOUBLE_QUOT, l);
       }
 #endif
 #if 201103L <= YY_CPLUSPLUS
@@ -1170,7 +1221,7 @@ switch (yykind)
 
 #if YYDEBUG
     // YYRLINE[YYN] -- Source line where rule number YYN was defined.
-    static const signed char yyrline_[];
+    static const unsigned char yyrline_[];
     /// Report on the debug stream that the rule \a r is going to be reduced.
     virtual void yy_reduce_print_ (int r) const;
     /// Print the state stack on the debug stream.
@@ -1397,9 +1448,9 @@ switch (yykind)
     /// Constants.
     enum
     {
-      yylast_ = 31,     ///< Last index in yytable_.
+      yylast_ = 32,     ///< Last index in yytable_.
       yynnts_ = 14,  ///< Number of nonterminal symbols.
-      yyfinal_ = 7 ///< Termination state number.
+      yyfinal_ = 8 ///< Termination state number.
     };
 
 
@@ -1411,7 +1462,7 @@ switch (yykind)
 
 #line 30 "parser.y"
 } // palan
-#line 1415 "PlnParser.hpp"
+#line 1466 "PlnParser.hpp"
 
 
 

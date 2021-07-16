@@ -18,9 +18,12 @@ enum {
     LC = PlnParser::token::LC,
     RC = PlnParser::token::RC,
     SEMICOLON = PlnParser::token::SEMICOLON,
+    DOUBLE_QUOT = PlnParser::token::DOUBLE_QUOT,
     DMP = PlnParser::token::DMP,
+    FUNC = PlnParser::token::FUNC,
     INT_TYPE = PlnParser::token::INT_TYPE,
     INT_LITERAL = PlnParser::token::INT_LITERAL,
+    STR			= PlnParser::token::STR,
     IDENTIFIER = PlnParser::token::IDENTIFIER,
 };
 
@@ -32,6 +35,8 @@ static string& unescape(string& str);
 %option noyywrap
 
 COMMENT1	\/\/[^\n]*\n
+STRING	"\""(\\.|\\\n|[^\\\"])*"\""
+
 %%
 %{
 	loc.begin.filename = &filenames[cur_fid];
@@ -40,13 +45,20 @@ COMMENT1	\/\/[^\n]*\n
 %}
 
 {COMMENT1}	{ loc.lines(); loc.step(); }
+{STRING} {
+    string str(yytext+1,yyleng-2);
+    lval.build<string>() = unescape(str);
+    return STR;
+}
 <INITIAL>{
     "("     return LP;
     ")"     return RP;
     "{"     return LC;
     "}"     return RC;
     ";"     return SEMICOLON;
-    "dump"     return DMP;
+    "\""    return DOUBLE_QUOT;
+    "関数"   return FUNC;
+    "出力"     return DMP;
     "int"       return INT_TYPE;
     [1-9][0-9]* {
         return INT_LITERAL;

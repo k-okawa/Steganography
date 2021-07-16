@@ -31,7 +31,7 @@ int yylex(	palan::PlnParser::semantic_type* yylval,
 %define parse.error	verbose
 %define api.value.type	variant
 
-%token IDENTIFIER INT_LITERAL DMP  INT_TYPE SEMICOLON
+%token IDENTIFIER INT_LITERAL DMP FUNC INT_TYPE STR DOUBLE_QUOT SEMICOLON
 %token LC RC LP RP
 %type <Expression*> expression intliteral_expression identifier_expression postfix_expression
 %type <StatementList*> statement_list
@@ -59,7 +59,7 @@ declaration_list
     }
     ;
 declaration
-    :INT_TYPE identifier_expression LP parameter_list RP compound_statement
+    :FUNC identifier_expression LP parameter_list RP compound_statement
     {
         $$ = StackMachine::get()->createIntFunctionDeclaration($2,$6);
     }
@@ -90,9 +90,9 @@ expression_statement
     }
     ;
 dump_statement
-    :DMP expression SEMICOLON
+    :DMP LP expression RP SEMICOLON
     {
-        $$ = StackMachine::get()->createDumpStm($2);
+        $$ = StackMachine::get()->createDumpStm($3);
     }
     ;
 compound_statement
@@ -117,7 +117,12 @@ postfix_expression
     }
     ;
 identifier_expression
-    : IDENTIFIER
+    : STR
+    {
+        string str(lexer.YYText()+1,lexer.YYLeng()-2);
+        $$ = StackMachine::get()->createIdentifierExp(str.c_str());
+    }
+    | IDENTIFIER
     {
         $$ = StackMachine::get()->createIdentifierExp(lexer.YYText());
     }

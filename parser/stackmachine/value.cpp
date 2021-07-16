@@ -28,6 +28,10 @@ Value::Value(double d)
     doubleV = d;
 }
 
+Value::Value(std::string s) {
+    m_type = ValueType::stringVal;
+    stringV = s;
+}
 
 Value::Value(const Value& other)
 {

@@ -9,7 +9,8 @@ Value IntLiteralExp::execute() {
 }
 
 Value IdentifierExp::execute() {
-    return Value();
+    string s = m_Identity;
+    return Value(s);
 }
 
 Value FunctionCallExp::execute() {

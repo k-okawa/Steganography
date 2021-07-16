@@ -1,3 +1,9 @@
+Terminals unused in grammar
+
+    INT_TYPE
+    DOUBLE_QUOT
+
+
 Grammar
 
     0 $accept: root $end
@@ -7,7 +13,7 @@ Grammar
     2 declaration_list: declaration
     3                 | declaration_list declaration
 
-    4 declaration: INT_TYPE identifier_expression LP parameter_list RP compound_statement
+    4 declaration: FUNC identifier_expression LP parameter_list RP compound_statement
 
     5 parameter_list: %empty
 
@@ -20,7 +26,7 @@ Grammar
 
    11 expression_statement: expression SEMICOLON
 
-   12 dump_statement: DMP expression SEMICOLON
+   12 dump_statement: DMP LP expression RP SEMICOLON
 
    13 compound_statement: LC RC
    14                   | LC statement_list RC
@@ -31,68 +37,72 @@ Grammar
 
    18 postfix_expression: identifier_expression LP RP
 
-   19 identifier_expression: IDENTIFIER
+   19 identifier_expression: STR
+   20                      | IDENTIFIER
 
-   20 intliteral_expression: INT_LITERAL
+   21 intliteral_expression: INT_LITERAL
 
 
 Terminals, with rules where they appear
 
     $end (0) 0
     error (256)
-    IDENTIFIER (258) 19
-    INT_LITERAL (259) 20
+    IDENTIFIER (258) 20
+    INT_LITERAL (259) 21
     DMP (260) 12
-    INT_TYPE (261) 4
-    SEMICOLON (262) 11 12
-    LC (263) 13 14
-    RC (264) 13 14
-    LP (265) 4 18
-    RP (266) 4 18
+    FUNC (261) 4
+    INT_TYPE (262)
+    STR (263) 19
+    DOUBLE_QUOT (264)
+    SEMICOLON (265) 11 12
+    LC (266) 13 14
+    RC (267) 13 14
+    LP (268) 4 12 18
+    RP (269) 4 12 18
 
 
 Nonterminals, with rules where they appear
 
-    $accept (12)
+    $accept (15)
         on left: 0
-    root <Root*> (13)
+    root <Root*> (16)
         on left: 1
         on right: 0
-    declaration_list <DeclarationList*> (14)
+    declaration_list <DeclarationList*> (17)
         on left: 2 3
         on right: 1 3
-    declaration <Declaration*> (15)
+    declaration <Declaration*> (18)
         on left: 4
         on right: 2 3
-    parameter_list <ParameterList*> (16)
+    parameter_list <ParameterList*> (19)
         on left: 5
         on right: 4
-    statement_list <StatementList*> (17)
+    statement_list <StatementList*> (20)
         on left: 6 7
         on right: 7 14
-    statement <Statement*> (18)
+    statement <Statement*> (21)
         on left: 8 9 10
         on right: 6 7
-    expression_statement <Statement*> (19)
+    expression_statement <Statement*> (22)
         on left: 11
         on right: 10
-    dump_statement <Statement*> (20)
+    dump_statement <Statement*> (23)
         on left: 12
         on right: 8
-    compound_statement <Statement*> (21)
+    compound_statement <Statement*> (24)
         on left: 13 14
         on right: 4 9
-    expression <Expression*> (22)
+    expression <Expression*> (25)
         on left: 15 16 17
         on right: 11 12
-    postfix_expression <Expression*> (23)
+    postfix_expression <Expression*> (26)
         on left: 18
         on right: 17
-    identifier_expression <Expression*> (24)
-        on left: 19
+    identifier_expression <Expression*> (27)
+        on left: 19 20
         on right: 4 16 18
-    intliteral_expression <Expression*> (25)
-        on left: 20
+    intliteral_expression <Expression*> (28)
+        on left: 21
         on right: 15
 
 
@@ -102,9 +112,9 @@ State 0
     1 root: • declaration_list
     2 declaration_list: • declaration
     3                 | • declaration_list declaration
-    4 declaration: • INT_TYPE identifier_expression LP parameter_list RP compound_statement
+    4 declaration: • FUNC identifier_expression LP parameter_list RP compound_statement
 
-    INT_TYPE  shift, and go to state 1
+    FUNC  shift, and go to state 1
 
     root              go to state 2
     declaration_list  go to state 3
@@ -113,32 +123,34 @@ State 0
 
 State 1
 
-    4 declaration: INT_TYPE • identifier_expression LP parameter_list RP compound_statement
-   19 identifier_expression: • IDENTIFIER
+    4 declaration: FUNC • identifier_expression LP parameter_list RP compound_statement
+   19 identifier_expression: • STR
+   20                      | • IDENTIFIER
 
     IDENTIFIER  shift, and go to state 5
+    STR         shift, and go to state 6
 
-    identifier_expression  go to state 6
+    identifier_expression  go to state 7
 
 
 State 2
 
     0 $accept: root • $end
 
-    $end  shift, and go to state 7
+    $end  shift, and go to state 8
 
 
 State 3
 
     1 root: declaration_list •  [$end]
     3 declaration_list: declaration_list • declaration
-    4 declaration: • INT_TYPE identifier_expression LP parameter_list RP compound_statement
+    4 declaration: • FUNC identifier_expression LP parameter_list RP compound_statement
 
-    INT_TYPE  shift, and go to state 1
+    FUNC  shift, and go to state 1
 
     $default  reduce using rule 1 (root)
 
-    declaration  go to state 8
+    declaration  go to state 9
 
 
 State 4
@@ -150,61 +162,68 @@ State 4
 
 State 5
 
-   19 identifier_expression: IDENTIFIER •
+   20 identifier_expression: IDENTIFIER •
 
-    $default  reduce using rule 19 (identifier_expression)
+    $default  reduce using rule 20 (identifier_expression)
 
 
 State 6
 
-    4 declaration: INT_TYPE identifier_expression • LP parameter_list RP compound_statement
+   19 identifier_expression: STR •
 
-    LP  shift, and go to state 9
+    $default  reduce using rule 19 (identifier_expression)
 
 
 State 7
+
+    4 declaration: FUNC identifier_expression • LP parameter_list RP compound_statement
+
+    LP  shift, and go to state 10
+
+
+State 8
 
     0 $accept: root $end •
 
     $default  accept
 
 
-State 8
+State 9
 
     3 declaration_list: declaration_list declaration •
 
     $default  reduce using rule 3 (declaration_list)
 
 
-State 9
+State 10
 
-    4 declaration: INT_TYPE identifier_expression LP • parameter_list RP compound_statement
+    4 declaration: FUNC identifier_expression LP • parameter_list RP compound_statement
     5 parameter_list: • %empty
 
     $default  reduce using rule 5 (parameter_list)
 
-    parameter_list  go to state 10
-
-
-State 10
-
-    4 declaration: INT_TYPE identifier_expression LP parameter_list • RP compound_statement
-
-    RP  shift, and go to state 11
+    parameter_list  go to state 11
 
 
 State 11
 
-    4 declaration: INT_TYPE identifier_expression LP parameter_list RP • compound_statement
-   13 compound_statement: • LC RC
-   14                   | • LC statement_list RC
+    4 declaration: FUNC identifier_expression LP parameter_list • RP compound_statement
 
-    LC  shift, and go to state 12
-
-    compound_statement  go to state 13
+    RP  shift, and go to state 12
 
 
 State 12
+
+    4 declaration: FUNC identifier_expression LP parameter_list RP • compound_statement
+   13 compound_statement: • LC RC
+   14                   | • LC statement_list RC
+
+    LC  shift, and go to state 13
+
+    compound_statement  go to state 14
+
+
+State 13
 
     6 statement_list: • statement
     7               | • statement_list statement
@@ -212,7 +231,7 @@ State 12
     9          | • compound_statement
    10          | • expression_statement
    11 expression_statement: • expression SEMICOLON
-   12 dump_statement: • DMP expression SEMICOLON
+   12 dump_statement: • DMP LP expression RP SEMICOLON
    13 compound_statement: • LC RC
    13                   | LC • RC
    14                   | • LC statement_list RC
@@ -221,74 +240,64 @@ State 12
    16           | • identifier_expression
    17           | • postfix_expression
    18 postfix_expression: • identifier_expression LP RP
-   19 identifier_expression: • IDENTIFIER
-   20 intliteral_expression: • INT_LITERAL
+   19 identifier_expression: • STR
+   20                      | • IDENTIFIER
+   21 intliteral_expression: • INT_LITERAL
 
     IDENTIFIER   shift, and go to state 5
-    INT_LITERAL  shift, and go to state 14
-    DMP          shift, and go to state 15
-    LC           shift, and go to state 12
-    RC           shift, and go to state 16
+    INT_LITERAL  shift, and go to state 15
+    DMP          shift, and go to state 16
+    STR          shift, and go to state 6
+    LC           shift, and go to state 13
+    RC           shift, and go to state 17
 
-    statement_list         go to state 17
-    statement              go to state 18
-    expression_statement   go to state 19
-    dump_statement         go to state 20
-    compound_statement     go to state 21
-    expression             go to state 22
-    postfix_expression     go to state 23
-    identifier_expression  go to state 24
-    intliteral_expression  go to state 25
-
-
-State 13
-
-    4 declaration: INT_TYPE identifier_expression LP parameter_list RP compound_statement •
-
-    $default  reduce using rule 4 (declaration)
+    statement_list         go to state 18
+    statement              go to state 19
+    expression_statement   go to state 20
+    dump_statement         go to state 21
+    compound_statement     go to state 22
+    expression             go to state 23
+    postfix_expression     go to state 24
+    identifier_expression  go to state 25
+    intliteral_expression  go to state 26
 
 
 State 14
 
-   20 intliteral_expression: INT_LITERAL •
+    4 declaration: FUNC identifier_expression LP parameter_list RP compound_statement •
 
-    $default  reduce using rule 20 (intliteral_expression)
+    $default  reduce using rule 4 (declaration)
 
 
 State 15
 
-   12 dump_statement: DMP • expression SEMICOLON
-   15 expression: • intliteral_expression
-   16           | • identifier_expression
-   17           | • postfix_expression
-   18 postfix_expression: • identifier_expression LP RP
-   19 identifier_expression: • IDENTIFIER
-   20 intliteral_expression: • INT_LITERAL
+   21 intliteral_expression: INT_LITERAL •
 
-    IDENTIFIER   shift, and go to state 5
-    INT_LITERAL  shift, and go to state 14
-
-    expression             go to state 26
-    postfix_expression     go to state 23
-    identifier_expression  go to state 24
-    intliteral_expression  go to state 25
+    $default  reduce using rule 21 (intliteral_expression)
 
 
 State 16
+
+   12 dump_statement: DMP • LP expression RP SEMICOLON
+
+    LP  shift, and go to state 27
+
+
+State 17
 
    13 compound_statement: LC RC •
 
     $default  reduce using rule 13 (compound_statement)
 
 
-State 17
+State 18
 
     7 statement_list: statement_list • statement
     8 statement: • dump_statement
     9          | • compound_statement
    10          | • expression_statement
    11 expression_statement: • expression SEMICOLON
-   12 dump_statement: • DMP expression SEMICOLON
+   12 dump_statement: • DMP LP expression RP SEMICOLON
    13 compound_statement: • LC RC
    14                   | • LC statement_list RC
    14                   | LC statement_list • RC
@@ -296,128 +305,158 @@ State 17
    16           | • identifier_expression
    17           | • postfix_expression
    18 postfix_expression: • identifier_expression LP RP
-   19 identifier_expression: • IDENTIFIER
-   20 intliteral_expression: • INT_LITERAL
+   19 identifier_expression: • STR
+   20                      | • IDENTIFIER
+   21 intliteral_expression: • INT_LITERAL
 
     IDENTIFIER   shift, and go to state 5
-    INT_LITERAL  shift, and go to state 14
-    DMP          shift, and go to state 15
-    LC           shift, and go to state 12
-    RC           shift, and go to state 27
+    INT_LITERAL  shift, and go to state 15
+    DMP          shift, and go to state 16
+    STR          shift, and go to state 6
+    LC           shift, and go to state 13
+    RC           shift, and go to state 28
 
-    statement              go to state 28
-    expression_statement   go to state 19
-    dump_statement         go to state 20
-    compound_statement     go to state 21
-    expression             go to state 22
-    postfix_expression     go to state 23
-    identifier_expression  go to state 24
-    intliteral_expression  go to state 25
+    statement              go to state 29
+    expression_statement   go to state 20
+    dump_statement         go to state 21
+    compound_statement     go to state 22
+    expression             go to state 23
+    postfix_expression     go to state 24
+    identifier_expression  go to state 25
+    intliteral_expression  go to state 26
 
 
-State 18
+State 19
 
     6 statement_list: statement •
 
     $default  reduce using rule 6 (statement_list)
 
 
-State 19
+State 20
 
    10 statement: expression_statement •
 
     $default  reduce using rule 10 (statement)
 
 
-State 20
+State 21
 
     8 statement: dump_statement •
 
     $default  reduce using rule 8 (statement)
 
 
-State 21
+State 22
 
     9 statement: compound_statement •
 
     $default  reduce using rule 9 (statement)
 
 
-State 22
+State 23
 
    11 expression_statement: expression • SEMICOLON
 
-    SEMICOLON  shift, and go to state 29
+    SEMICOLON  shift, and go to state 30
 
 
-State 23
+State 24
 
    17 expression: postfix_expression •
 
     $default  reduce using rule 17 (expression)
 
 
-State 24
+State 25
 
-   16 expression: identifier_expression •  [SEMICOLON]
+   16 expression: identifier_expression •  [SEMICOLON, RP]
    18 postfix_expression: identifier_expression • LP RP
 
-    LP  shift, and go to state 30
+    LP  shift, and go to state 31
 
     $default  reduce using rule 16 (expression)
 
 
-State 25
+State 26
 
    15 expression: intliteral_expression •
 
     $default  reduce using rule 15 (expression)
 
 
-State 26
-
-   12 dump_statement: DMP expression • SEMICOLON
-
-    SEMICOLON  shift, and go to state 31
-
-
 State 27
+
+   12 dump_statement: DMP LP • expression RP SEMICOLON
+   15 expression: • intliteral_expression
+   16           | • identifier_expression
+   17           | • postfix_expression
+   18 postfix_expression: • identifier_expression LP RP
+   19 identifier_expression: • STR
+   20                      | • IDENTIFIER
+   21 intliteral_expression: • INT_LITERAL
+
+    IDENTIFIER   shift, and go to state 5
+    INT_LITERAL  shift, and go to state 15
+    STR          shift, and go to state 6
+
+    expression             go to state 32
+    postfix_expression     go to state 24
+    identifier_expression  go to state 25
+    intliteral_expression  go to state 26
+
+
+State 28
 
    14 compound_statement: LC statement_list RC •
 
     $default  reduce using rule 14 (compound_statement)
 
 
-State 28
+State 29
 
     7 statement_list: statement_list statement •
 
     $default  reduce using rule 7 (statement_list)
 
 
-State 29
+State 30
 
    11 expression_statement: expression SEMICOLON •
 
     $default  reduce using rule 11 (expression_statement)
 
 
-State 30
+State 31
 
    18 postfix_expression: identifier_expression LP • RP
 
-    RP  shift, and go to state 32
-
-
-State 31
-
-   12 dump_statement: DMP expression SEMICOLON •
-
-    $default  reduce using rule 12 (dump_statement)
+    RP  shift, and go to state 33
 
 
 State 32
 
+   12 dump_statement: DMP LP expression • RP SEMICOLON
+
+    RP  shift, and go to state 34
+
+
+State 33
+
    18 postfix_expression: identifier_expression LP RP •
 
     $default  reduce using rule 18 (postfix_expression)
+
+
+State 34
+
+   12 dump_statement: DMP LP expression RP • SEMICOLON
+
+    SEMICOLON  shift, and go to state 35
+
+
+State 35
+
+   12 dump_statement: DMP LP expression RP SEMICOLON •
+
+    $default  reduce using rule 12 (dump_statement)

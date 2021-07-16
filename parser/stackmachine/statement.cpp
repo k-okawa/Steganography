@@ -11,6 +11,9 @@ Value DumpStm::execute() {
             case ValueType::intVal:
                 cout << val.intV << endl;
                 break;
+            case ValueType::stringVal:
+                cout << val.stringV << endl;
+                break;
         }
     }
     return Value();
