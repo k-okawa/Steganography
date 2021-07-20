@@ -29,7 +29,7 @@ const char* StackMachine::createFixedString(const char *ext) {
     return it.first->c_str();
 }
 
-int StackMachine::compile(ifstream& f) {
+int StackMachine::compile(istream& f) {
     m_pRoot = new Root();
     PlnLexer lexer;
     lexer.switch_streams(&f, &cout);

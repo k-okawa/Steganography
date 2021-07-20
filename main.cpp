@@ -19,6 +19,7 @@ int main(int argc, char *argv[]) {
     auto args = parser.parseArgs(argc, argv);
 
     if(args.has("test") && args.get<std::string>("test") == "strInsert") {
+        // 文字を埋め込んで読み込むテスト
         std::string imgPath = args.get<std::string>("img");
         std::string outPath = args.get<std::string>("out");
         std::filesystem::copy(imgPath, outPath, std::filesystem::copy_options::overwrite_existing);
@@ -27,6 +28,7 @@ int main(int argc, char *argv[]) {
         std::vector<char> result = stegano.load(outPath);
         std::cout << std::string(result.begin(), result.end()) << std::endl;
     } else if(args.has("test") && args.get<std::string>("test") == "lua") {
+        // Luaスクリプトを埋め込んで読み込んで実行するテスト
         std::string imgPath = args.get<std::string>("img");
         std::string outPath = args.get<std::string>("out");
         std::string luaPath = args.get<std::string>("path");
@@ -45,17 +47,33 @@ int main(int argc, char *argv[]) {
         auto luaEngine = LuaEngine::getInstance();
         luaEngine->execString(luaScriptStr);
         luaEngine->execFunc("main");
-    }
+    } else if(args.has("test") && args.get<std::string>("test") == "myParser") {
+        // 自作言語を埋め込んで読み込んで実行するテスト
+        std::string imgPath = args.get<std::string>("img");
+        std::string outPath = args.get<std::string>("out");
+        std::string bsPath = args.get<std::string>("path");
+        std::filesystem::copy(imgPath, outPath, std::filesystem::copy_options::overwrite_existing);
+        PngStegano stegano;
+        auto bytes = FileUtil::read(bsPath);
+        stegano.insert(outPath, std::string(bytes.begin(), bytes.end()));
+        std::vector<char> result = stegano.load(outPath);
 
-    std::ifstream f;
-    f.open("./myscript.bc");
-    auto stackMachine = StackMachine::get();
-    if(stackMachine->compile(f)){
-        return 1;
+        std::cout << "----Load Script----" << std::endl;
+        std::string scriptStr = std::string(result.begin(), result.end());
+        std::cout << scriptStr  << std::endl;
+        std::cout << "----Load Script----" << std::endl;
+
+        std::cout << "----Call MyScript Main----" << std::endl;
+        std::stringbuf strBuf(scriptStr.c_str());
+        std::istream istream(&strBuf);
+        auto stackMachine = StackMachine::get();
+        if(stackMachine->compile(istream)) {
+            std::cerr << "Failed Compiling Script" << std::endl;
+        } else {
+            stackMachine->execute();
+            stackMachine->destroy();
+        }
     }
-    std::cout << "exec my script" << std::endl;
-    stackMachine->execute();
-    stackMachine->destroy();
 
     return 0;
 }
