@@ -16,12 +16,12 @@ include_directories(${lua_path}/src)
 file ( GLOB_RECURSE parser parser/stackmachine/*.cpp parser/stackmachine/*.h parser/FlexLexer.h parser/PlnLexer.h parser/PlnLexer.cpp parser/PlnParser.hpp parser/PlnParser.cpp)
 include_directories(parser)
 
- # src
+# src
 file( GLOB_RECURSE src ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/src)
 
 add_executable(Steganography ${parser} ${lua_sources} ${src} main.cpp)
 
-# OpenCv　参考 https://blog.yucchiy.com/2014/09/16/clion-opencv/
+# OpenCV　reference: https://blog.yucchiy.com/2014/09/16/clion-opencv/
 find_package(OpenCV REQUIRED)
 target_link_libraries(Steganography ${OpenCV_LIBS})
