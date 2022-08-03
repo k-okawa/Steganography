@@ -1,4 +1,34 @@
-## OpenCV
+# SteganographySample
+ステガノグラフィのサンプルです
+
+## ビルド
+
+```
+cmake ./
+make
+```
+
+## 実行
+### 文字列画像埋め込み
+
+```
+./Steganography --test strInsert --img ./assets/icon.png --str hello_steganography --out ./assets/out.png
+```
+
+### Luaスクリプト画像埋め込み
+
+```
+./Steganography --test lua --img ./assets/icon.png --path ./assets/luaScript.lua --out ./assets/out.png
+```
+
+### 自作言語スクリプト画像埋め込み
+
+```
+./Steganography --test myParser --img ./assets/icon.png --path ./assets/myScript.bs --out ./assets/out.png
+```
+
+## 実装メモ
+### OpenCV
 cmakeがインストールされていない場合はインストール
 ```shell
 brew install cmake
@@ -21,12 +51,12 @@ find_package(OpenCV REQUIRED)
 target_link_libraries(Steganography ${OpenCV_LIBS})
 ```
 
-## Lua
-### C++でのLuaの扱い参考
+### Lua
+#### C++でのLuaの扱い参考
 https://qiita.com/hiz_/items/8739c46ddd2563a5603f
 
-## Flex, Bison
-### インストール
+### Flex, Bison
+#### インストール
 ```shell
 brew install flex bison
 ```
@@ -37,8 +67,10 @@ brew link flex --force
 brew link bison --force
 ```
 
-### flexビルド
+#### flexビルド
+
 flex 2.6.4
+
 ```shell
 flex -o PlnLexer.cpp lexer.l
 ```
@@ -49,8 +81,10 @@ flex -o PlnLexer.cpp lexer.l
 
 #include <FlexLexer.h> → #include "PlnLexer.h"
 
-### bisonビルド
+#### bisonビルド
+
 bison (GNU Bison) 3.7.6
+
 ```shell
 bison -o PlnParser.cpp -r all --report-file=bison.log parser.y
 ```
